@@ -59,7 +59,7 @@ class GotoInterpreter {
         let safetyCounter = 0;
 
         while (pc < instructions.length) {
-            if (safetyCounter++ > 1000) throw new Error("Infinite loop detected (safety limit)");
+            if (safetyCounter++ > 1_000_000) throw new Error("Infinite loop detected (safety limit: 1,000,000 steps)");
 
             const instr = instructions[pc];
             if (!instr) break;

@@ -4,7 +4,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import Lexer = require("./lexer");
+import Lexer from "./lexer";
 import LoopParser = require("./loop/parser");
 import LoopInterpreter = require("./loop/interpreter");
 import WhileParser = require("./while/parser");

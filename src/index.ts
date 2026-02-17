@@ -1,4 +1,4 @@
-import Lexer = require("./lexer");
+import Lexer from "./lexer";
 import LoopParser = require("./loop/parser");
 import LoopInterpreter = require("./loop/interpreter");
 import WhileParser = require("./while/parser");

@@ -113,4 +113,4 @@ class Lexer {
     }
 }
 
-export = Lexer;
+export default Lexer;

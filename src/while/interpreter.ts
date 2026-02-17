@@ -73,7 +73,7 @@ class WhileInterpreter {
                     console.log(`  WHILE ${this.conditionToString(statement.condition)}`);
                 }
                 while (this.evaluateCondition(statement.condition)) {
-                    if (safetyCounter++ > 1000) throw new Error("Infinite loop detected (safety limit)");
+                    if (safetyCounter++ > 1_000_000) throw new Error("Infinite loop detected (safety limit: 1,000,000 iterations)");
                     iteration++;
                     if (this.verbose) {
                         console.log(`    iteration ${iteration}`);
