@@ -168,9 +168,3 @@ npm test
 ```
 
 Unit tests run the three interpreters on small programs and check final variable values. Translation behaviour is tested by running programs, translating them, and comparing results (same idea as `-verify`).
-
-There is also a CLI flow test suite (`tests/cli-flow.test.ts`) that runs the real CLI end-to-end: multiple programs per language, with and without initial values, all translation directions, and `-verify` / `-verbose`. It uses the same syntax as in the README (including minimal LOOP/WHILE/GOTO programs written to a temp dir). Run it with `npm test` (after `npm run build`).
-
-## License
-
-MIT.
