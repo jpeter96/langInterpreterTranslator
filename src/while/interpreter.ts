@@ -38,7 +38,9 @@ class WhileInterpreter {
         if (initialVariables) {
             for (const [name, value] of initialVariables) {
                 this.variables.set(name, value);
-                this.lockedVariables.add(name);
+                if (name !== "x0") {
+                    this.lockedVariables.add(name);
+                }
             }
         }
 

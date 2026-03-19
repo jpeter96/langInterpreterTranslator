@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import LoopInterpreter from "../src/loop/interpreter";
 import LoopParser from "../src/loop/parser";
 import Lexer from "../src/lexer";
@@ -122,7 +123,7 @@ describe("LOOP Interpreter", () => {
 });
 
 describe("LOOP with initial variables", () => {
-    test("initial vars override program assignments", () => {
+    test("x0 is overwritten but x1-xn are locked", () => {
         const code = `
             x0 := 3;
             x1 := 4;
@@ -136,13 +137,15 @@ describe("LOOP with initial variables", () => {
         const lexer = new Lexer(code);
         const parser = new LoopParser(lexer.tokenize());
         const interpreter = new LoopInterpreter();
-        
+
         const initialVars = new Map([["x0", 5], ["x1", 6]]);
         const result = interpreter.evaluate(parser.parse(), { initialVariables: initialVars });
-        
-        expect(result.get("x0")).toBe(5);
+
+        // x0 is result var — always overwritable, so x0 := 3
+        // x1 is input var — locked, so x1 stays 6
+        expect(result.get("x0")).toBe(3);
         expect(result.get("x1")).toBe(6);
-        expect(result.get("x2")).toBe(30);
+        expect(result.get("x2")).toBe(18);
     });
 
     test("initial vars work with subsequent modifications", () => {
@@ -157,11 +160,12 @@ describe("LOOP with initial variables", () => {
         const lexer = new Lexer(code);
         const parser = new LoopParser(lexer.tokenize());
         const interpreter = new LoopInterpreter();
-        
+
         const initialVars = new Map([["x0", 3]]);
         const result = interpreter.evaluate(parser.parse(), { initialVariables: initialVars });
-        
-        expect(result.get("x1")).toBe(3);
+
+        // x0 := 10 overwrites initial value, so 10 iterations
+        expect(result.get("x1")).toBe(10);
         expect(result.get("x0")).toBe(0);
     });
 
@@ -174,12 +178,13 @@ describe("LOOP with initial variables", () => {
         const lexer = new Lexer(code);
         const parser = new LoopParser(lexer.tokenize());
         const interpreter = new LoopInterpreter();
-        
+
         const initialVars = new Map([["x0", 10]]);
         const result = interpreter.evaluate(parser.parse(), { initialVariables: initialVars });
-        
-        expect(result.get("x0")).toBe(10);
+
+        // x0 := 2 overwrites initial value
+        expect(result.get("x0")).toBe(2);
         expect(result.get("x1")).toBe(3);
-        expect(result.get("x2")).toBe(13);
+        expect(result.get("x2")).toBe(5);
     });
 });

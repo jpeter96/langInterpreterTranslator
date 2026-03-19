@@ -212,7 +212,7 @@ function printHelp() {
     console.log("Place your .loop, .while, and .goto files in the examples/ folder.");
     console.log("");
     console.log("Options:");
-    console.log("  -x0=5 -x1=10     Set initial variables (override program values)");
+    console.log("  -x1=5 -x2=10     Set input variables (x0 is always the result)");
     console.log("  -t2while, -t2w   Translate to WHILE (both options are the same)");
     console.log("  -t2goto, -t2g    Translate to GOTO (both options are the same)");
     console.log("  -verify          Run original and translated, compare results");
@@ -220,8 +220,8 @@ function printHelp() {
     console.log("  -help            Show this help");
     console.log("");
     console.log("Examples:");
-    console.log("  lang multiply.loop                  Run with initial values");
-    console.log("  lang multiply.loop -x0=5 -x1=10     Run with overridden values");
+    console.log("  lang multiply.loop -x1=5 -x2=4      Run with input values (x0 = 5*4 = 20)");
+    console.log("  lang countdown.goto -x1=10          Run countdown with x1=10");
     console.log("  lang multiply.loop -verbose         Run with verbose output");
     console.log("  lang divide.while -t2goto           Translate WHILE to GOTO");
     console.log("  lang countdown.goto -t2while        Translate GOTO to WHILE");
@@ -261,7 +261,15 @@ function main() {
         if (variables.size > 0) {
             console.log(`Initial: ${Array.from(variables.entries()).map(([k, v]) => `${k}=${v}`).join(", ")}`);
         }
-        console.log(`\n${code.trim()}`);
+        // Replace initial assignment values with CLI values for display
+        let displayCode = code.trim();
+        for (const [name, value] of variables) {
+            displayCode = displayCode.replace(
+                new RegExp(`(${name}\\s*:=\\s*)\\d+`),
+                `$1${value}`
+            );
+        }
+        console.log(`\n${displayCode}`);
 
         if (translateTo) {
             if (language === translateTo) {

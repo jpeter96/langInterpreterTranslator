@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import WhileInterpreter from "../src/while/interpreter";
 import WhileParser from "../src/while/parser";
 import Lexer from "../src/lexer";
@@ -143,7 +144,7 @@ describe("WHILE Interpreter", () => {
 });
 
 describe("WHILE with initial variables", () => {
-    test("initial vars override program assignments", () => {
+    test("x0 is overwritten but x1-xn are locked", () => {
         const code = `
             x0 := 10;
             x1 := 3;
@@ -156,11 +157,13 @@ describe("WHILE with initial variables", () => {
         const lexer = new Lexer(code);
         const parser = new WhileParser(lexer.tokenize());
         const interpreter = new WhileInterpreter();
-        
+
         const initialVars = new Map([["x0", 15], ["x1", 5]]);
         const result = interpreter.evaluate(parser.parse(), { initialVariables: initialVars });
-        
-        expect(result.get("x2")).toBe(3);
+
+        // x0 is result var — overwritten to 10; x1 is locked at 5
+        // 10/5 = 2 iterations, x0=0
+        expect(result.get("x2")).toBe(2);
         expect(result.get("x0")).toBe(0);
     });
 
@@ -176,11 +179,12 @@ describe("WHILE with initial variables", () => {
         const lexer = new Lexer(code);
         const parser = new WhileParser(lexer.tokenize());
         const interpreter = new WhileInterpreter();
-        
+
         const initialVars = new Map([["x0", 3]]);
         const result = interpreter.evaluate(parser.parse(), { initialVariables: initialVars });
-        
-        expect(result.get("x1")).toBe(3);
+
+        // x0 := 10 overwrites initial value, so 10 iterations
+        expect(result.get("x1")).toBe(10);
         expect(result.get("x0")).toBe(0);
     });
 
@@ -197,10 +201,11 @@ describe("WHILE with initial variables", () => {
         const lexer = new Lexer(code);
         const parser = new WhileParser(lexer.tokenize());
         const interpreter = new WhileInterpreter();
-        
+
         const initialVars = new Map([["x0", 5]]);
         const result = interpreter.evaluate(parser.parse(), { initialVariables: initialVars });
-        
-        expect(result.get("x1")).toBe(1);
+
+        // x0 := 0 overwrites initial value, so IF x0=5 is false
+        expect(result.get("x1")).toBe(2);
     });
 });

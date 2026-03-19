@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import Lexer from "../src/lexer";
 import LoopParser from "../src/loop/parser";
 import WhileParser from "../src/while/parser";

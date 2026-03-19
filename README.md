@@ -33,7 +33,7 @@ The file can be a path to a `.loop`, `.while`, or `.goto` file. If you pass only
 
 | Option | Description |
 |--------|-------------|
-| `-x0=5`, `-x1=3`, ... | Set initial variables (overwrite defaults). Unset variables start at 0. |
+| `-x1=5`, `-x2=3`, ... | Set input variables. `x0` is always the result variable (freely overwritable by the program). Input variables (`x1`, `x2`, ...) are locked: their first assignment in the program is skipped so the CLI value is kept. Unset variables start at 0. |
 | `-t2while`, `-t2w` | Translate the program to WHILE and print the result. |
 | `-t2goto`, `-t2g` | Translate the program to GOTO and print the result. |
 | `-verify` | After translating, run both original and translated program and compare variable values. Use with `-t2while` or `-t2goto`. |
@@ -45,8 +45,8 @@ The file can be a path to a `.loop`, `.while`, or `.goto` file. If you pass only
 Run a program (with optional initial values):
 
 ```bash
-lang multiply_input.loop -x0=3 -x1=4
-lang countdown.goto
+lang multiply.loop -x1=3 -x2=4
+lang countdown.goto -x1=5
 ```
 
 Translate to another language:
@@ -85,11 +85,16 @@ Save your program in a file with extension `.loop`, `.while`, or `.goto` so the 
   The body runs exactly as many times as the value of the variable **at loop entry** (changing that variable inside the body does not change the count).
 - **Statements:** One per line; each assignment ends with `;`. You can nest LOOPs.
 
-Minimal example (adds `x1` to `x0` and leaves the result in `x0`; run e.g. with `-x0=3 -x1=4` to get 7):
+Minimal example (multiplies `x1` by `x2` and stores the result in `x0`; run e.g. with `-x1=3 -x2=4` to get 12):
 
 ```text
+x0 := 0;
+x1 := 0;
+x2 := 0;
 LOOP x1 DO
-  x0 := x0 + 1;
+  LOOP x2 DO
+    x0 := x0 + 1;
+  END
 END
 ```
 
@@ -100,14 +105,17 @@ END
   Condition is an expression, a comparison, and an expression. Comparisons: `=`, `!=`, `<`, `>`, `<=`, `>=`.  
   Example: `WHILE x0 != 0 DO` … `END` or `WHILE x0 >= x1 DO` … `END`
 - **If:** `IF condition THEN` … `END` or `IF condition THEN` … `ELSE` … `END`
-- The interpreter stops after 1000 loop iterations and reports a possible infinite loop.
+- The interpreter stops after 1,000,000 iterations and reports a possible infinite loop.
 
-Minimal example (countdown):
+Minimal example (integer division `x1 / x2`, result in `x0`; run e.g. with `-x1=10 -x2=3` to get 3):
 
 ```text
-x0 := 10;
-WHILE x0 != 0 DO
-  x0 := x0 - 1;
+x0 := 0;
+x1 := 0;
+x2 := 0;
+WHILE x1 >= x2 DO
+  x1 := x1 - x2;
+  x0 := x0 + 1;
 END
 ```
 
@@ -122,16 +130,19 @@ END
   - `HALT;`
 - The program must eventually execute `HALT` (otherwise behaviour is undefined). Instructions are executed in order unless a jump changes the flow.
 
-Minimal example (countdown in `x0`):
+Minimal example (countdown: copies `x1` into `x0` by counting down; run e.g. with `-x1=5` to get x0=5):
 
 ```text
-M1: IF x0 = 0 THEN GOTO M2;
-    x0 := x0 - 1;
+x0 := 0;
+x1 := 0;
+M1: IF x1 = 0 THEN GOTO M2;
+    x1 := x1 - 1;
+    x0 := x0 + 1;
     GOTO M1;
 M2: HALT;
 ```
 
-You can put your files in `examples/` or anywhere else; if you pass a path, the tool loads that file. Convention: many programs use `x0` as output and `x1`, `x2`, ... as inputs; you set them with `-x0=...`, `-x1=...`, etc.
+You can put your files in `examples/` or anywhere else; if you pass a path, the tool loads that file. **Convention:** `x0` is always the result variable (the program overwrites it freely). `x1`, `x2`, ... are input variables — set them with `-x1=5`, `-x2=3`, etc. Every program should start with `x0 := 0;` followed by default assignments for its input variables (e.g. `x1 := 0; x2 := 0;`), which get skipped when CLI values are provided.
 
 ## Translators
 
@@ -157,7 +168,7 @@ src/
   goto/              GOTO: ast.ts, parser.ts, interpreter.ts
   translators/       loopToWhile.ts, whileToGoto.ts, gotoToWhile.ts
 examples/            Sample .loop, .while, .goto programs
-tests/               Jest tests for interpreters (and translation behaviour via verification)
+tests/               Vitest tests for interpreters (and translation behaviour via verification)
 ```
 
 ## Tests

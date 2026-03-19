@@ -42,7 +42,10 @@ class Interpreter {
         if (initialVariables) {
             for (const [name, value] of initialVariables) {
                 this.variables.set(name, value);
-                this.lockedVariables.add(name);
+                // x0 is the result variable — never lock it
+                if (name !== "x0") {
+                    this.lockedVariables.add(name);
+                }
             }
         }
 
